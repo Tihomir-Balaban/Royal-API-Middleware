@@ -9,7 +9,7 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["Royal.API.Middleware/Royal.API.Middleware.csproj", "Royal.API.Middleware/"]
+COPY ["./Royal.API.Middleware.csproj", "Royal.API.Middleware/"]
 RUN dotnet restore "./Royal.API.Middleware/Royal.API.Middleware.csproj"
 COPY . .
 WORKDIR "/src/Royal.API.Middleware"
