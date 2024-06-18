@@ -1,0 +1,11 @@
+
+# All files
+[*]
+indent_style = space
+
+# Xml files
+[*.xml]
+indent_size = 4
+
+[*.cs]
+dotnet_diagnostic.CA1852.severity = warning
