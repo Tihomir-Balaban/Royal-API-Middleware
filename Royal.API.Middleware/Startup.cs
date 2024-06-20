@@ -1,4 +1,9 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using Royal.API.Middleware.JWT;
+using Royal.Service.ProductService;
+using System.Net.Http.Headers;
 using System.Text;
 
 namespace Royal.API.Middleware;
@@ -19,36 +24,44 @@ public sealed class Startup
         services.AddLogging();
 
         // Configure JWT Authentication
-        //var jwtSettings = Configuration.GetSection("JwtSettings").Get<JwtSettings>();
-        //var key = Encoding.ASCII.GetBytes(jwtSettings.SecretKey);
+        var jwtSettings = Configuration.GetSection("JwtSettings").Get<JwtSettings>();
+        var key = Encoding.ASCII.GetBytes(jwtSettings.SecretKey);
 
         //services.AddAutoMapper(typeof(Startup).Assembly);
 
-        //services.AddAuthentication(x =>
-        //{
-        //    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-        //    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        //})
-        //.AddJwtBearer(x =>
-        //{
-        //    x.RequireHttpsMetadata = false;
-        //    x.SaveToken = true;
-        //    x.TokenValidationParameters = new TokenValidationParameters
-        //    {
-        //        ValidateIssuerSigningKey = true,
-        //        IssuerSigningKey = new SymmetricSecurityKey(key),
-        //        ValidateIssuer = false,
-        //        ValidateAudience = false
-        //    };
-        //});
+        services.AddAuthentication(x =>
+        {
+            x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(x =>
+        {
+            x.RequireHttpsMetadata = false;
+            x.SaveToken = true;
+            x.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateIssuer = false,
+                ValidateAudience = false
+            };
+        });
 
         // Services
+        services.AddScoped<IProductService, ProductService>();
 
         // Repositories
 
         //services.AddDbContext<FilmForgeDbContext>(options =>
-            //options.UseSqlServer(
-                //.GetConnectionString("DefaultConnection")));
+        //options.UseSqlServer(
+        //.GetConnectionString("DefaultConnection")));
+
+
+        services.AddHttpClient("ProductApiClient", client =>
+        {
+            client.BaseAddress = new Uri("https://dummyjson.com/");
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        });
 
         services.AddEndpointsApiExplorer();
 
