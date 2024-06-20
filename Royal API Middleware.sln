@@ -17,11 +17,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Royal.Common", "Royal.Commo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Royal.Entities", "Royal.Entities\Royal.Entities.csproj", "{4F2C3717-5E8F-4B26-A7AA-A8C90BA93970}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Royal.Repository.Tests", "Royal.Repository.Tests\Royal.Repository.Tests.csproj", "{53FFDA8B-7A28-43E2-9F72-8FF5BFF0585C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Royal.Repository.Tests", "Royal.Repository.Tests\Royal.Repository.Tests.csproj", "{53FFDA8B-7A28-43E2-9F72-8FF5BFF0585C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Royal.Repository.Intergration.Tests", "Royal.Repository.Intergration.Tests\Royal.Repository.Intergration.Tests.csproj", "{B2C38F01-17B7-4CB7-9D7A-51B54673C29A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Royal.Repository.Intergration.Tests", "Royal.Repository.Intergration.Tests\Royal.Repository.Intergration.Tests.csproj", "{B2C38F01-17B7-4CB7-9D7A-51B54673C29A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Royal.Service.Tests", "Royal.Service.Tests\Royal.Service.Tests.csproj", "{3349F05E-4820-4DF1-8C7E-C7422D297260}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Royal.Service.Tests", "Royal.Service.Tests\Royal.Service.Tests.csproj", "{3349F05E-4820-4DF1-8C7E-C7422D297260}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Royal.API.Middleware;
 
-public class Startup
+public sealed class Startup
 {
     public Startup(IConfiguration configuration)
     {
