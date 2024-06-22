@@ -1,5 +1,6 @@
 ﻿using Royal.API.Middleware.Controllers.Base;
 using Royal.Service.ProductService;
+using System.Threading;
 
 namespace Royal.API.Middleware.Controllers;
 
@@ -53,26 +54,28 @@ public sealed class ProductController : RoyalController
     // GET: /Product?limit={limit}&skip={skip}&descriptionLength={descriptionLength}
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ProductDto>>> GetProducts(
+        CancellationToken cancellationToken,
         [FromQuery] int descriptionLength = 100,
         [FromQuery] int limit = 0,
         [FromQuery] int skip = 0)
     {
-        logger.LogInformation("Triggered Endpoint GET: /product");
+        logger.LogInformation("Triggered Endpoint GET: /product", cancellationToken);
 
         try
         {
-            logger.LogInformation("Triggering Product Service: GetProductsAsync");
+            logger.LogInformation("Triggering Product Service: GetProductsAsync", cancellationToken);
 
             var (products, statusCode) = await productService.GetProductsAsync(
                 descriptionLength,
                 limit,
-            skip);
+                skip,
+                cancellationToken);
 
             return HttpStatusCodeResolve(products, statusCode);
         }
         catch (Exception e)
         {
-            logger.LogError($"Error caught: {nameof(e.InnerException)}");
+            logger.LogError($"Error caught: {nameof(e.InnerException)}", cancellationToken);
 
             BadRequest(e.Message);
 
@@ -99,21 +102,21 @@ public sealed class ProductController : RoyalController
     /// <response code="404">Returns message if there is no product in the Api/Database with that id</response>
     // GET: /Product/{id}
     [HttpGet("{id}")]
-    public async Task<ActionResult<ProductDto>> GetProductById(int id)
+    public async Task<ActionResult<ProductDto>> GetProductById(int id, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Triggered Endpoint GET: /product/{id}");
+        logger.LogInformation("Triggered Endpoint GET: /product/{id}", cancellationToken);
 
         try
         {
-            logger.LogInformation("Triggering Product Service: GetProductByIdAsync");
+            logger.LogInformation("Triggering Product Service: GetProductByIdAsync", cancellationToken);
 
-            var (products, statusCode) = await productService.GetProductByIdAsync(id);
+            var (products, statusCode) = await productService.GetProductByIdAsync(id, cancellationToken);
 
             return HttpStatusCodeResolve(products, statusCode);
         }
         catch (Exception e)
         {
-            logger.LogError($"Error caught: {nameof(e.InnerException)}");
+            logger.LogError($"Error caught: {nameof(e.InnerException)}", cancellationToken);
 
             BadRequest(e.Message);
 
@@ -155,11 +158,12 @@ public sealed class ProductController : RoyalController
     // GET: /Product/Category/{category}?minPrice=1.99&maxPrice=2.99
     [HttpGet("category/{category}")]
     public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsByCategoryAndPrice(
-        string category,
+        string category, 
+        CancellationToken cancellationToken,
         [FromQuery] decimal minPrice = 0.00m,
         [FromQuery] decimal maxPrice = 0.00m)
     {
-        logger.LogInformation("Triggered Endpoint GET: /Product/Category/{category}");
+        logger.LogInformation("Triggered Endpoint GET: /Product/Category/{category}", cancellationToken);
 
         try
         {
@@ -167,15 +171,15 @@ public sealed class ProductController : RoyalController
                 minPrice > maxPrice)
                 return BadRequest("Invalid Query values minimum price value larger than maximum price value!");
 
-            logger.LogInformation("Triggering Product Service: GetProductsByCategoryAndPriceAsync");
+            logger.LogInformation("Triggering Product Service: GetProductsByCategoryAndPriceAsync", cancellationToken);
 
-            var (products, statusCode) = await productService.GetProductsByCategoryAndPriceAsync(category, minPrice, maxPrice);
+            var (products, statusCode) = await productService.GetProductsByCategoryAndPriceAsync(category, minPrice, maxPrice, cancellationToken);
 
             return HttpStatusCodeResolve(products, statusCode);
         }
         catch (Exception e)
         {
-            logger.LogError($"Error caught: {nameof(e.InnerException)}");
+            logger.LogError($"Error caught: {nameof(e.InnerException)}", cancellationToken);
 
             BadRequest(e.Message);
 
@@ -216,21 +220,23 @@ public sealed class ProductController : RoyalController
     // GET: /Product/Name
     // GET: /Product/Name?productName=someproduct
     [HttpGet("name")]
-    public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsByProductName([FromQuery] string productName = "")
+    public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsByProductName(
+        CancellationToken cancellationToken,
+        [FromQuery] string productName = "")
     {
-        logger.LogInformation("Triggered Endpoint GET: /Product/Category/{category}");
+        logger.LogInformation("Triggered Endpoint GET: /Product/Category/{category}", cancellationToken);
 
         try
         {
-            logger.LogInformation("Triggering Product Service: GetProductsByProductNameAsync");
+            logger.LogInformation("Triggering Product Service: GetProductsByProductNameAsync", cancellationToken);
 
-            var (products, statusCode) = await productService.GetProductsByProductNameAsync(productName);
+            var (products, statusCode) = await productService.GetProductsByProductNameAsync(productName, cancellationToken);
 
             return HttpStatusCodeResolve(products, statusCode);
         }
         catch (Exception e)
         {
-            logger.LogError($"Error caught: {nameof(e.InnerException)}");
+            logger.LogError($"Error caught: {nameof(e.InnerException)}", cancellationToken);
 
             BadRequest(e.Message);
 
