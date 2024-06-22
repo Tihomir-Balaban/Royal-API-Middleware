@@ -1,10 +1,11 @@
-﻿using Royal.Service.ProductService;
+﻿using Royal.API.Middleware.Controllers.Base;
+using Royal.Service.ProductService;
 
 namespace Royal.API.Middleware.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public sealed class ProductController : Controller
+public sealed class ProductController : RoyalController
 {
     private readonly ILogger<ProductController> logger;
     private readonly IProductService productService;
@@ -48,9 +49,8 @@ public sealed class ProductController : Controller
     /// <response code="400">Returns error message with what happened</response>
     /// <response code="404">Returns message if there are no products in the Api/Database</response>
     // GET: /Product
-    // The follow request query can be mixed and matched all incomming parameters have default preset values
+    // The following request query can be mixed and matched all incomming parameters have default preset values
     // GET: /Product?limit={limit}&skip={skip}&descriptionLength={descriptionLength}
-    //[Authorize]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ProductDto>>> GetProducts(
         [FromQuery] int descriptionLength = 100,
@@ -63,18 +63,12 @@ public sealed class ProductController : Controller
         {
             logger.LogInformation("Triggering Product Service: GetProductsAsync");
 
-            var (products, isSuccessStatusCode) = await productService.GetProductsAsync(
-            descriptionLength,
-            limit,
+            var (products, statusCode) = await productService.GetProductsAsync(
+                descriptionLength,
+                limit,
             skip);
 
-            if (isSuccessStatusCode)
-                return Ok(products);
-
-            logger.LogWarning("No Products not found.");
-
-            return NotFound(products);
-
+            return HttpStatusCodeResolve(products, statusCode);
         }
         catch (Exception e)
         {
@@ -104,9 +98,8 @@ public sealed class ProductController : Controller
     /// <response code="400">Returns error message with what happened</response>
     /// <response code="404">Returns message if there is no product in the Api/Database with that id</response>
     // GET: /Product/{id}
-    //[Authorize]
     [HttpGet("{id}")]
-    public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductById(int id)
+    public async Task<ActionResult<ProductDto>> GetProductById(int id)
     {
         logger.LogInformation("Triggered Endpoint GET: /product/{id}");
 
@@ -114,14 +107,9 @@ public sealed class ProductController : Controller
         {
             logger.LogInformation("Triggering Product Service: GetProductByIdAsync");
 
-            var (products, isSuccessStatusCode) = await productService.GetProductByIdAsync(id);
+            var (products, statusCode) = await productService.GetProductByIdAsync(id);
 
-            if (isSuccessStatusCode)
-                return Ok(products);
-
-            logger.LogWarning("No Products not found.");
-
-            return NotFound((products));
+            return HttpStatusCodeResolve(products, statusCode);
         }
         catch (Exception e)
         {
@@ -165,7 +153,6 @@ public sealed class ProductController : Controller
     /// <response code="404">Returns message if there is no product in the Api/Database with that category and/or price</response>
     // GET: /Product/Category/{category}
     // GET: /Product/Category/{category}?minPrice=1.99&maxPrice=2.99
-    //[Authorize]
     [HttpGet("category/{category}")]
     public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsByCategoryAndPrice(
         string category,
@@ -182,14 +169,9 @@ public sealed class ProductController : Controller
 
             logger.LogInformation("Triggering Product Service: GetProductsByCategoryAndPriceAsync");
 
-            var (products, isSuccessStatusCode) = await productService.GetProductsByCategoryAndPriceAsync(category, minPrice, maxPrice);
+            var (products, statusCode) = await productService.GetProductsByCategoryAndPriceAsync(category, minPrice, maxPrice);
 
-            if (isSuccessStatusCode)
-                return Ok(products);
-
-            logger.LogWarning("No Products not found.");
-
-            return NotFound(products);
+            return HttpStatusCodeResolve(products, statusCode);
         }
         catch (Exception e)
         {
@@ -231,10 +213,9 @@ public sealed class ProductController : Controller
     /// <response code="200">Returns the list of products</response>
     /// <response code="400">Returns error message with what happened</response>
     /// <response code="404">Returns message if there is no product in the Api/Database with that name</response>
-    // GET: /Product/Category/{category}
-    // GET: /Product/Category/{category}?minPrice=1.99&maxPrice=2.99
-    //[Authorize]
-    [HttpGet("category/{category}")]
+    // GET: /Product/Name
+    // GET: /Product/Name?productName=someproduct
+    [HttpGet("name")]
     public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsByProductName([FromQuery] string productName = "")
     {
         logger.LogInformation("Triggered Endpoint GET: /Product/Category/{category}");
@@ -243,14 +224,9 @@ public sealed class ProductController : Controller
         {
             logger.LogInformation("Triggering Product Service: GetProductsByProductNameAsync");
 
-            var (products, isSuccessStatusCode) = await productService.GetProductsByProductNameAsync(productName);
+            var (products, statusCode) = await productService.GetProductsByProductNameAsync(productName);
 
-            if (isSuccessStatusCode)
-                return Ok(products);
-
-            logger.LogWarning("No Products not found.");
-
-            return NotFound(products);
+            return HttpStatusCodeResolve(products, statusCode);
         }
         catch (Exception e)
         {
