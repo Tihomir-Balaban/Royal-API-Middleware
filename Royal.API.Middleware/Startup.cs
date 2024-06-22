@@ -3,6 +3,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Royal.API.Middleware.JWT;
 using Royal.Service.ProductService;
+using Royal.Service.Security;
+using Royal.Service.UserService;
 using System.Net.Http.Headers;
 using System.Text;
 
@@ -25,39 +27,44 @@ public sealed class Startup
 
         // Configure JWT Authentication
         var jwtSettings = Configuration.GetSection("JwtSettings").Get<JwtSettings>();
-        var key = Encoding.ASCII.GetBytes(jwtSettings.SecretKey);
-
+        services.Configure<JwtSettings>(Configuration.GetSection("JwtSettings"));
         //services.AddAutoMapper(typeof(Startup).Assembly);
 
-        services.AddAuthentication(x =>
+        var key = Encoding.ASCII.GetBytes(jwtSettings.SecretKey);
+
+        services.AddAuthentication(options =>
         {
-            x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
         })
-        .AddJwtBearer(x =>
+        .AddJwtBearer(options =>
         {
-            x.RequireHttpsMetadata = false;
-            x.SaveToken = true;
-            x.TokenValidationParameters = new TokenValidationParameters
+            options.RequireHttpsMetadata = false;
+            options.SaveToken = true;
+            options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(key),
+                ValidateLifetime = true,
                 ValidateIssuer = false,
                 ValidateAudience = false
             };
         });
 
+
         // Services
         services.AddScoped<IProductService, ProductService>();
+        services.AddScoped<IUserService, UserService>();
+        services.AddScoped<ISecurityService, SecurityService>();
 
         // Repositories
 
-        //services.AddDbContext<FilmForgeDbContext>(options =>
+
+        //services.AddDbContext<DbContext>(options =>
         //options.UseSqlServer(
         //.GetConnectionString("DefaultConnection")));
 
-
-        services.AddHttpClient("ProductApiClient", client =>
+        services.AddHttpClient("DummyApiClient", client =>
         {
             client.BaseAddress = new Uri("https://dummyjson.com/");
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -66,21 +73,17 @@ public sealed class Startup
         services.AddEndpointsApiExplorer();
 
         // Swagger
-        services.AddSwaggerGen(c =>
+        services.AddSwaggerGen(option =>
         {
-            c.SwaggerDoc("v1", new OpenApiInfo { Title = "Solar Power Plant API", Version = "v1" });
+            option.SwaggerDoc("v1", new OpenApiInfo { Title = "Royal API Middleware", Version = "v1" });
         });
     }
 
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env/*, FilmForgeDbContext context*/)
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
         if (env.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();
-
-            // DONE: Init User
-            // TODO: Implement data Seeding
-            //DbInitializer.Initialize(context);
         }
 
         app.UseHttpsRedirection();
@@ -94,10 +97,10 @@ public sealed class Startup
         app.UseSwagger();
 
         // Enable middleware to serve Swagger UI
-        app.UseSwaggerUI(c =>
+        app.UseSwaggerUI(option =>
         {
-            c.SwaggerEndpoint("/swagger/v1/swagger.json", "Solar Power Plant API V1");
-            c.RoutePrefix = string.Empty; // To serve the Swagger UI at the app's root
+            option.SwaggerEndpoint("/swagger/v1/swagger.json", "Royal API Middleware V1");
+            option.RoutePrefix = string.Empty; // To serve the Swagger UI at the app's root
         });
 
         app.UseEndpoints(endpoints =>
