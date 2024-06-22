@@ -25,21 +25,23 @@ public sealed class ProductService : IProductService
         };
     }
 
-    public async Task<(ProductDto, HttpStatusCode)> GetProductByIdAsync(int id)
+    public async Task<(ProductDto, HttpStatusCode)> GetProductByIdAsync(
+        int id,
+        CancellationToken cancellationToken)
     {
         try
         {
-            logger.LogInformation($"[Service = {nameof(ProductService)}] [Method = {nameof(GetProductByIdAsync)}] Initializing HTTP Request");
+            logger.LogInformation($"[Service = {nameof(ProductService)}] [Method = {nameof(GetProductByIdAsync)}] Initializing HTTP Request", cancellationToken);
 ;
-            var response = await client.GetAsync($"products/{id}");
+            var response = await client.GetAsync($"products/{id}", cancellationToken);
 
             logger.LogInformation($"[Service = {nameof(ProductService)}] [Method = {nameof(GetProductByIdAsync)}] StatusCode for request: {response.StatusCode}");
 
-            return await ResolveResponse<ProductDto, ProductService>(response, logger, nameof(GetProductByIdAsync));
+            return await ResolveResponse<ProductDto, ProductService>(response, logger, nameof(GetProductByIdAsync), cancellationToken);
         }
         catch (Exception e)
         {
-            logger.LogError(e, $"Failed to map Product. Error: {e.Message}.");
+            logger.LogError(e, $"Failed to map Product. Error: {e.Message}.", cancellationToken);
 
             throw new ApplicationException(e.Message);
         }
@@ -48,17 +50,18 @@ public sealed class ProductService : IProductService
     public async Task<(IEnumerable<ProductDto>, HttpStatusCode)> GetProductsAsync(
         int descriptionLength,
         int limit,
-        int skip)
+        int skip,
+        CancellationToken cancellationToken)
     {
         try
         {
-            logger.LogInformation($"[Service = {nameof(ProductService)}] [Method = {nameof(GetProductsAsync)}] Initializing HTTP Request");
+            logger.LogInformation($"[Service = {nameof(ProductService)}] [Method = {nameof(GetProductsAsync)}] Initializing HTTP Request", cancellationToken);
 
-            var response = await client.GetAsync($"products");
+            var response = await client.GetAsync($"products", cancellationToken);
 
-            logger.LogInformation($"[Service = {nameof(ProductService)}] [Method = {nameof(GetProductsAsync)}] StatusCode for request: {response.StatusCode}");
+            logger.LogInformation($"[Service = {nameof(ProductService)}] [Method = {nameof(GetProductsAsync)}] StatusCode for request: {response.StatusCode}", cancellationToken);
 
-            var (productsRes, statusCode) = await ResolveResponse<ProductResponse, ProductService>(response, logger, nameof(GetProductsAsync));
+            var (productsRes, statusCode) = await ResolveResponse<ProductResponse, ProductService>(response, logger, nameof(GetProductsAsync), cancellationToken);
 
             if (statusCode.Equals(HttpStatusCode.OK))
             {
@@ -87,18 +90,20 @@ public sealed class ProductService : IProductService
     public async Task<(IEnumerable<ProductDto>, HttpStatusCode)> GetProductsByCategoryAndPriceAsync(
         string category,
         decimal minPrice,
-        decimal maxPrice)
+        decimal maxPrice,
+        CancellationToken cancellationToken)
     {
         try
         {
-            logger.LogInformation($"[Service = {nameof(ProductService)}] [Method = {nameof(GetProductsByCategoryAndPriceAsync)}] Initializing HTTP Request");
+            logger.LogInformation($"[Service = {nameof(ProductService)}] [Method = {nameof(GetProductsByCategoryAndPriceAsync)}] Initializing HTTP Request", cancellationToken);
 
-            if (!await IsValidCategory(category))
+            if (!await IsValidCategory(category, cancellationToken))
                 return (null, HttpStatusCode.NotFound);
 
-            var response = await client.GetAsync($"products/category/{category}");
+            var response = await client.GetAsync($"products/category/{category}", cancellationToken);
 
-            var (productsRes, statusCode) = await ResolveResponse<ProductResponse, ProductService>(response, logger, nameof(GetProductsByCategoryAndPriceAsync));
+            var (productsRes, statusCode) = await ResolveResponse<ProductResponse, ProductService>(response, logger, nameof(GetProductsByCategoryAndPriceAsync), cancellationToken);
+
             if (statusCode.Equals(HttpStatusCode.OK))
             {
                 var products = maxPrice > 0.00m ?
@@ -121,16 +126,18 @@ public sealed class ProductService : IProductService
         }
     }
 
-    public async Task<(IEnumerable<ProductDto>, HttpStatusCode)> GetProductsByProductNameAsync(string productName)
+    public async Task<(IEnumerable<ProductDto>, HttpStatusCode)> GetProductsByProductNameAsync(
+        string productName,
+        CancellationToken cancellationToken)
     {
         try
         {
             logger.LogInformation($"[Service = {nameof(ProductService)}] [Method = {nameof(GetProductsByProductNameAsync)}] Initializing HTTP Request");
 
-            var response = await client.GetAsync($"products/search?q={productName}");
+            var response = await client.GetAsync($"products/search?q={productName}", cancellationToken);
 
 
-            var (productsRes, statusCode) = await ResolveResponse<ProductResponse, ProductService>(response, logger, nameof(GetProductsByProductNameAsync));
+            var (productsRes, statusCode) = await ResolveResponse<ProductResponse, ProductService>(response, logger, nameof(GetProductsByProductNameAsync), cancellationToken);
 
             return (productsRes.Products, statusCode);
         }
@@ -142,17 +149,19 @@ public sealed class ProductService : IProductService
         }
     }
 
-    private async Task<bool> IsValidCategory(string category)
+    private async Task<bool> IsValidCategory(
+        string category,
+        CancellationToken cancellationToken)
     {
         try
         {
             logger.LogInformation($"[Service = {nameof(ProductService)}] [Method = {nameof(IsValidCategory)}] Initializing HTTP Request");
 
-            var response = await client.GetAsync($"products/category-list");
+            var response = await client.GetAsync($"products/category-list", cancellationToken);
 
             logger.LogInformation($"[Service = {nameof(ProductService)}] [Method = {nameof(IsValidCategory)}] StatusCode for request: {response.StatusCode}");
 
-            var (categoryRes, statusCode) = await ResolveResponse<string[], ProductService>(response, logger, nameof(IsValidCategory));
+            var (categoryRes, statusCode) = await ResolveResponse<string[], ProductService>(response, logger, nameof(IsValidCategory), cancellationToken);
 
             if (statusCode.Equals(HttpStatusCode.OK)) return categoryRes.Contains(category);
 

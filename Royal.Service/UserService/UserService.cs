@@ -29,13 +29,13 @@ public sealed class UserService : IUserService
     {
         try
         {
-            logger.LogInformation($"[Service = {nameof(UserService)}] [Method = {nameof(GetUsersAsync)}] Initializing HTTP Request");
+            logger.LogInformation($"[Service = {nameof(UserService)}] [Method = {nameof(GetUsersAsync)}] Initializing HTTP Request", cancellationToken);
 
-            var response = await client.GetAsync($"users");
+            var response = await client.GetAsync($"users", cancellationToken);
 
-            logger.LogInformation($"[Service = {nameof(UserService)}] [Method = {nameof(GetUsersAsync)}] StatusCode for request: {response.StatusCode}");
+            logger.LogInformation($"[Service = {nameof(UserService)}] [Method = {nameof(GetUsersAsync)}] StatusCode for request: {response.StatusCode}", cancellationToken);
 
-            var (userRes, statusCode) = await ResolveResponse<UserResponse, UserService>(response, logger, nameof(GetUsersAsync));
+            var (userRes, statusCode) = await ResolveResponse<UserResponse, UserService>(response, logger, nameof(GetUsersAsync), cancellationToken);
 
             return (userRes.Users, statusCode);
         }
@@ -53,13 +53,13 @@ public sealed class UserService : IUserService
     {
         try
         {
-            logger.LogInformation($"[Service = {nameof(UserService)}] [Method = {nameof(GetByIdAsync)}] Initializing HTTP Request");
+            logger.LogInformation($"[Service = {nameof(UserService)}] [Method = {nameof(GetByIdAsync)}] Initializing HTTP Request", cancellationToken);
 
-            var response = await client.GetAsync($"users/{userId}");
+            var response = await client.GetAsync($"users/{userId}", cancellationToken);
 
-            logger.LogInformation($"[Service = {nameof(UserService)}] [Method = {nameof(GetByIdAsync)}] StatusCode for request: {response.StatusCode}");
+            logger.LogInformation($"[Service = {nameof(UserService)}] [Method = {nameof(GetByIdAsync)}] StatusCode for request: {response.StatusCode}", cancellationToken);
 
-            return await ResolveResponse<UserDto, UserService>(response, logger, nameof(GetByIdAsync));
+            return await ResolveResponse<UserDto, UserService>(response, logger, nameof(GetByIdAsync), cancellationToken);
         }
         catch (Exception e)
         {
@@ -75,7 +75,7 @@ public sealed class UserService : IUserService
     {
         try
         {
-            logger.LogInformation($"[Service = {nameof(UserService)}] [Method = {nameof(LoginUserAsync)}] Initializing HTTP Request");
+            logger.LogInformation($"[Service = {nameof(UserService)}] [Method = {nameof(LoginUserAsync)}] Initializing HTTP Request", cancellationToken);
             var json = JsonSerializer.Serialize(login);
 
             var stringContent = new StringContent(json.ToLower(), Encoding.UTF8, "application/json");
@@ -86,11 +86,9 @@ public sealed class UserService : IUserService
                     stringContent,
                     cancellationToken);
 
-            logger.LogInformation($"[Service = {nameof(UserService)}] [Method = {nameof(LoginUserAsync)}] StatusCode for request: {response.StatusCode}");
+            logger.LogInformation($"[Service = {nameof(UserService)}] [Method = {nameof(LoginUserAsync)}] StatusCode for request: {response.StatusCode}", cancellationToken);
 
-            var a = await ResolveResponse<UserDto, UserService>(response, logger, nameof(LoginUserAsync));
-
-            return a;
+            return await ResolveResponse<UserDto, UserService>(response, logger, nameof(LoginUserAsync), cancellationToken);
         }
         catch (Exception e)
         {
