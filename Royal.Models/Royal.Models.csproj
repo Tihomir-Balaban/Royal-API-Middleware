@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Royal.Common\Royal.Common.csproj" />
+  </ItemGroup>
+
 </Project>

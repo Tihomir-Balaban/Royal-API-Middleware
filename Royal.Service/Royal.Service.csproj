@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Royal.Models\Royal.Models.csproj" />
+    <ProjectReference Include="..\Royal.Service.Security\Royal.Service.Security.csproj" />
   </ItemGroup>
 
 </Project>
